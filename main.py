@@ -1,157 +1,46 @@
 import os
-import timeit
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+from dotenv import load_dotenv
 from typing import Dict, List
-import hashlib
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import hashes
+
+from utils import delete_files, create_files, print_performance_results, measure_performance
+
+load_dotenv()
+
+FILES_DIR = os.getenv('FILES_DIR')
+AES_DIR = os.getenv('AES_DIR')
+SHA_DIR = os.getenv('SHA_DIR')
+RSA_DIR = os.getenv('RSA_DIR')
+
+AES_FILE_SIZE = [int(size) for size in os.getenv('AES_FILE_SIZE').split(",")]
+SHA_FILE_SIZE = [int(size) for size in os.getenv('SHA_FILE_SIZE').split(",")]
+RSA_FILE_SIZE = [int(size) for size in os.getenv('RSA_FILE_SIZE').split(",")]
+
+ALGS = os.getenv('ALGS').split(",")
 
 
-FILES_DIR = "./files"
-AES_DIR = "./files/AES"
-SHA_DIR = "./files/SHA"
-RSA_DIR = "./files/RSA"
-
-AES_FILE_SIZE = [8, 64, 512, 4096, 32768, 262144, 2097152]
-SHA_FILE_SIZE = [8, 64, 512, 4096, 32768, 262144, 2097152]
-RSA_FILE_SIZE = [2, 4, 8, 16, 32, 64, 128]
-
-ALGS = ["AES", "SHA", "RSA"]
-
-
-def generate_rsa_keys() -> (str, str):
-    # Generate private key
-    private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-    )
-
-    # Generate public key
-    public_key = private_key.public_key()
-
-    return private_key, public_key
-
-
-def encrypt_decrypt(alg: str, data: bytes, private_key: str, public_key: str):
-    if alg == "aes":
-        # I will use the CTR mode
-        key = os.urandom(32)  # 256 bits key
-        nonce = os.urandom(16)
-
-        cipher = Cipher(algorithms.AES(key), modes.CTR(nonce))
-        encryptor = cipher.encryptor()
-        decryptor = cipher.decryptor()
-
-        encrypt_data = encryptor.update(data) + encryptor.finalize()
-        _ = decryptor.update(encrypt_data) + decryptor.finalize()
-    elif alg == "rsa":
-
-        # RSA encryption
-        encrypted_data = public_key.encrypt(
-            data,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
-            )
-        )
-
-        # RSA decryption
-        _ = private_key.decrypt(
-            encrypted_data,
-            padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                algorithm=hashes.SHA256(),
-                label=None
-            )
-        )
-
-    elif alg == "sha":
-        _ = hashlib.sha256(data).hexdigest()
-
-
-def measure_performance(alg: str, file_path: str) -> float:
-    with open(file_path, "rb") as f:
-        data = f.read()
-
-    private_key, public_key = generate_rsa_keys()
-    stmt = lambda: encrypt_decrypt(alg, data, private_key, public_key)
-    number_of_executions = 100
-
-    execution_time = timeit.timeit(stmt,
-                                   number=number_of_executions)
-
-    return execution_time / number_of_executions
-
-
-def generate_random_file(file: str, size: int):
-    with open(file, "wb") as f:
-        # Create a file with the correct size
-        f.write(os.urandom(size))
-
-
-# key - algorithms
-# value - list of all file path to that algorithm
-def create_files() -> Dict[str, List[str]]:
-    all_files_dic: Dict[str, List[str]] = {}
-
-    # Create dir to store the files
-    if not os.path.exists(FILES_DIR):
-        os.makedirs(FILES_DIR)
-
-    # Create the random Files
-    for alg in ALGS:
-        alg_dir = f"{alg}_DIR"
-        alg_dir = globals()[alg_dir]
-        if not os.path.exists(alg_dir):
-            os.makedirs(alg_dir)
-
-        alg_file_sizes = f"{alg}_FILE_SIZE"
-        alg_file_sizes = globals()[alg_file_sizes]
-
-        file_names_list: List[str] = []
-        for file_size in alg_file_sizes:
-            filename = os.path.join(alg_dir, f"{alg.lower()}_{file_size}.bin")
-            file_names_list.append(filename)
-
-            generate_random_file(filename, file_size)
-
-        all_files_dic[alg.lower()] = file_names_list
-
-    return all_files_dic
-
-
-def delete_files():
+# Preate data for the creation and removal of the files
+def main_aux() -> (Dict[str, str], Dict[str, [int]]):
+    algs_dir_dict: Dict[str, str] = {}
+    algs_file_sizes_dict: Dict[str, [int]] = {}
     for alg in ALGS:
         alg_dir = f"{alg}_DIR"
         alg_dir = globals()[alg_dir]
         alg_file_sizes = f"{alg}_FILE_SIZE"
         alg_file_sizes = globals()[alg_file_sizes]
 
-        # Remove .bin files
-        for file_size in alg_file_sizes:
-            filename = os.path.join(alg_dir, f"{alg.lower()}_{file_size}.bin")
-            os.remove(filename)
+        algs_dir_dict[alg] = alg_dir
+        algs_file_sizes_dict[alg] = alg_file_sizes
 
-        # Removes the dir for each alg
-        if os.path.exists(alg_dir):
-            os.removedirs(alg_dir)
-
-    # ".files/"
-    if os.path.exists(FILES_DIR):
-        os.removedirs(FILES_DIR)
-
-
-def print_performance_results(performance_results_dic: Dict[str, Dict[str, float]]):
-    for alg, files_result_perform_dic in performance_results_dic.items():
-        print(f"Performance Results for {alg}\n")
-        for file_path, time in files_result_perform_dic.items():
-            print(f"{file_path}: {time} seconds")
-        print("\n")
+    return (algs_dir_dict, algs_file_sizes_dict)
 
 
 def main():
-    all_files_dic: Dict[str, List[str]] = create_files()
+    algs_dir_dict, algs_file_sizes_dict = main_aux()
+    all_files_dic: Dict[str, List[str]] = create_files(ALGS,
+                                                       FILES_DIR,
+                                                       algs_dir_dict,
+                                                       algs_file_sizes_dict)
 
     # key = algorithm name
     # value:  str -> file_path | float -> time result preformance
@@ -168,7 +57,7 @@ def main():
     print_performance_results(performance_results_dic)
 
     # Delete files created
-    delete_files()
+    delete_files(ALGS, FILES_DIR, algs_dir_dict, algs_file_sizes_dict)
 
 
 main()
