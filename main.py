@@ -2,7 +2,6 @@ import os
 
 from dotenv import load_dotenv
 from typing import Dict, List
-
 from utils import delete_files, create_files, print_performance_results, measure_performance
 
 load_dotenv()

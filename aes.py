@@ -23,6 +23,7 @@ def aes_aux(data: bytes,
     elif encrypt:
         encryptor = cipher.encryptor()
 
+        # Here the data passed as argument needs to be already encrypt
         encrypt_data = encryptor.update(data) + encryptor.finalize()
         return encrypt_data
 
