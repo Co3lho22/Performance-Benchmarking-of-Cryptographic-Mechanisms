@@ -26,7 +26,6 @@ def rsa_aux(data: bytes,
                          data,
                          padding.OAEP(
                              mgf=padding.MGF1(algorithm=hashes.SHA256,
-                                              algorithm=hashes.SHA256(),
                                               label=None)))
 
         # RSA decryption
@@ -43,7 +42,6 @@ def rsa_aux(data: bytes,
                          data,
                          padding.OAEP(
                              mgf=padding.MGF1(algorithm=hashes.SHA256,
-                                              algorithm=hashes.SHA256(),
                                               label=None)))
 
         return encrypted_data
