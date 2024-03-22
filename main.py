@@ -41,21 +41,70 @@ def main():
                                                        algs_dir_dict,
                                                        algs_file_sizes_dict)
 
-    # key = algorithm name
-    # value:  str -> file_path | float -> time result preformance
-    performance_results_dic: Dict[str, Dict[str, float]] = {}
-    for alg, files_path_list in all_files_dic.items():
-        alg_performance_results_dic: Dict[str, float] = {}
-
-        for file_path in files_path_list:
-            time = measure_performance(alg, file_path, True, True)
-            alg_performance_results_dic[file_path] = time
-
-        performance_results_dic[alg] = alg_performance_results_dic
+    # AES
+    aes_alg: str = ALGS[0].lower()
+    print(f"{aes_alg} encryp+decrypt:")
+    performance_results_dic: Dict[str, float] = {}
+    for file_path in all_files_dic[aes_alg]:
+        time: float = measure_performance(aes_alg, file_path, True, True)
+        performance_results_dic[file_path] = time
 
     print_performance_results(performance_results_dic)
+
+    print(f"{aes_alg} encrypt:")
+    performance_results_dic: Dict[str, float] = {}
+    for file_path in all_files_dic[aes_alg]:
+        time: float = measure_performance(aes_alg, file_path, True, False)
+        performance_results_dic[file_path] = time
+
+    print_performance_results(performance_results_dic)
+
+    print(f"{aes_alg} decrypt:")
+    performance_results_dic: Dict[str, float] = {}
+    for file_path in all_files_dic[aes_alg]:
+        time: float = measure_performance(aes_alg, file_path, False, True)
+        performance_results_dic[file_path] = time
+
+    print_performance_results(performance_results_dic)
+
+    # RSA
+    rsa_alg: str = ALGS[1].lower()
+    print(f"{rsa_alg} encryp+decrypt:")
+    performance_results_dic: Dict[str, float] = {}
+    for file_path in all_files_dic[rsa_alg]:
+        time: float = measure_performance(rsa_alg, file_path, True, True)
+        performance_results_dic[file_path] = time
+
+    print_performance_results(performance_results_dic)
+
+    print(f"{rsa_alg} encrypt:")
+    performance_results_dic: Dict[str, float] = {}
+    for file_path in all_files_dic[rsa_alg]:
+        time: float = measure_performance(rsa_alg, file_path, True, False)
+        performance_results_dic[file_path] = time
+
+    print_performance_results(performance_results_dic)
+
+    print(f"{rsa_alg} decrypt:")
+    performance_results_dic: Dict[str, float] = {}
+    for file_path in all_files_dic[rsa_alg]:
+        time: float = measure_performance(rsa_alg, file_path, False, True)
+        performance_results_dic[file_path] = time
+
+    print_performance_results(performance_results_dic)
+
+    # SHA
+    sha_alg: str = ALGS[2].lower()
+    print(f"{sha_alg} hashing:")
+    performance_results_dic: Dict[str, float] = {}
+    for file_path in all_files_dic[sha_alg]:
+        time: float = measure_performance(sha_alg, file_path)
+        performance_results_dic[file_path] = time
+
+    print_performance_results(performance_results_dic)
+
     # Delete files created
-    # delete_files(ALGS, FILES_DIR, algs_dir_dict, algs_file_sizes_dict)
+    delete_files(ALGS, FILES_DIR, algs_dir_dict, algs_file_sizes_dict)
 
 
 main()

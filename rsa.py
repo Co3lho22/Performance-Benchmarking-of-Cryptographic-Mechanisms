@@ -41,11 +41,15 @@ def rsa_aux(data: bytes,
 
         return decrypted_data
     elif encrypt:
+        # RSA encryption
         encrypted_data = public_key.encrypt(
-                         data,
-                         padding.OAEP(
-                             mgf=padding.MGF1(algorithm=hashes.SHA256,
-                                              label=None)))
+            data,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
 
         return encrypted_data
     elif decrypt:

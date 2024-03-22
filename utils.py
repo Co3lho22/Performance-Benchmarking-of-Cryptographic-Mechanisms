@@ -8,8 +8,8 @@ from rsa import generate_rsa_keys, rsa_aux
 
 def measure_performance(alg: str,
                         file_path: str,
-                        encrypt: bool,
-                        decrypt: bool) -> float:
+                        encrypt=False,
+                        decrypt=False) -> float:
     with open(file_path, "rb") as f:
         data = f.read()
 
@@ -117,9 +117,8 @@ def delete_files(algs: List[str],
         os.removedirs(files_dir)
 
 
-def print_performance_results(performance_results_dic: Dict[str, Dict[str, float]]):
-    for alg, files_result_perform_dic in performance_results_dic.items():
-        print(f"Performance Results for {alg}\n")
-        for file_path, time in files_result_perform_dic.items():
-            print(f"{file_path}: {time} seconds")
-        print("\n")
+def print_performance_results(performance_results_dic: Dict[str, float]):
+    for file_path, time in performance_results_dic.items():
+        print(f"{file_path}: {time} seconds")
+
+    print("\n")
