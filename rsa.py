@@ -23,10 +23,13 @@ def rsa_aux(data: bytes,
     if encrypt and decrypt:
         # RSA encryption
         encrypted_data = public_key.encrypt(
-                         data,
-                         padding.OAEP(
-                             mgf=padding.MGF1(algorithm=hashes.SHA256,
-                                              label=None)))
+            data,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
 
         # RSA decryption
         decrypted_data = private_key.decrypt(

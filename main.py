@@ -48,15 +48,14 @@ def main():
         alg_performance_results_dic: Dict[str, float] = {}
 
         for file_path in files_path_list:
-            time = measure_performance(alg, file_path)
+            time = measure_performance(alg, file_path, True, True)
             alg_performance_results_dic[file_path] = time
 
         performance_results_dic[alg] = alg_performance_results_dic
 
     print_performance_results(performance_results_dic)
-
     # Delete files created
-    delete_files(ALGS, FILES_DIR, algs_dir_dict, algs_file_sizes_dict)
+    # delete_files(ALGS, FILES_DIR, algs_dir_dict, algs_file_sizes_dict)
 
 
 main()

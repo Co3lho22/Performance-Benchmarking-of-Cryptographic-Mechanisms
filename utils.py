@@ -34,13 +34,13 @@ def measure_performance(alg: str,
                                               False,
                                               public_key,
                                               private_key)
-                stmt = lambda: aes_aux(encrypt_data,
+                stmt = lambda: rsa_aux(encrypt_data,
                                        encrypt,
                                        decrypt,
-                                       key,
-                                       nonce)
+                                       public_key,
+                                       private_key)
             else:
-                stmt = lambda: aes_aux(data,
+                stmt = lambda: rsa_aux(data,
                                        encrypt,
                                        decrypt,
                                        public_key,
